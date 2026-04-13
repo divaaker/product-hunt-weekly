@@ -32,7 +32,7 @@ jobs:
           PRODUCTHUNT_CLIENT_SECRET: ${{ secrets.PRODUCTHUNT_CLIENT_SECRET }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python product_hunt_weekly.py
+        run: python scripts/product_hunt_weekly.py
       
       - name: Log execution
         if: always()
