@@ -126,7 +126,7 @@ Products:
 Format your response in clear sections with actionable insights. Keep it concise but comprehensive."""
     
     message = client.messages.create(
-        model="claude-opus-4-20250514",
+        model="laude-haiku-4-20250514",
         max_tokens=1024,
         messages=[
             {"role": "user", "content": prompt}
