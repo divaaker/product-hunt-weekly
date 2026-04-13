@@ -104,6 +104,19 @@ def fetch_producthunt_top_products(limit=5):
 def analyze_with_claude(products):
     """Use Claude to analyze why these products are trending and provide insights"""
     
+    # List of models to try (in order of preference)
+    # User can override with CLAUDE_MODEL environment variable
+    available_models = [
+        os.getenv("CLAUDE_MODEL"),  # User can set this to their available model
+        "claude-opus-4",
+        "claude-sonnet-4",
+        "claude-3-5-sonnet-20241022",
+        "claude-3-sonnet-20240229",
+    ]
+    
+    # Filter out None values
+    available_models = [m for m in available_models if m]
+    
     # Format products data for Claude
     products_text = "\n".join([
         f"{i+1}. {p['name']} ({p['votes']} votes, Rating: {p['rating']}/5)\n"
@@ -125,15 +138,27 @@ Products:
 
 Format your response in clear sections with actionable insights. Keep it concise but comprehensive."""
     
-    message = client.messages.create(
-        model="claude-sonnet-4",
-        max_tokens=1024,
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )
+    # Try models until one works
+    last_error = None
+    for model in available_models:
+        try:
+            print(f"   Trying model: {model}")
+            message = client.messages.create(
+                model=model,
+                max_tokens=1024,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            print(f"   ✅ Success with {model}")
+            return message.content[0].text
+        except Exception as e:
+            last_error = e
+            print(f"   ❌ {model} not available")
+            continue
     
-    return message.content[0].text
+    # If all models failed, raise the last error
+    raise last_error
 
 def convert_markdown_to_slack(text):
     """Convert markdown formatting to Slack mrkdwn format"""
