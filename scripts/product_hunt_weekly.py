@@ -126,7 +126,7 @@ Products:
 Format your response in clear sections with actionable insights. Keep it concise but comprehensive."""
     
     message = client.messages.create(
-        model="laude-haiku-4-20250514",
+        model="claude-haiku-4-20250514",
         max_tokens=1024,
         messages=[
             {"role": "user", "content": prompt}
@@ -134,6 +134,16 @@ Format your response in clear sections with actionable insights. Keep it concise
     )
     
     return message.content[0].text
+
+def convert_markdown_to_slack(text):
+    """Convert markdown formatting to Slack mrkdwn format"""
+    # Replace markdown bold (**text**) with Slack bold (*text*)
+    text = text.replace("**", "*")
+    # Replace markdown headers with bold (## text -> *text*)
+    text = text.replace("## ", "*")
+    # Ensure proper line spacing
+    text = text.strip()
+    return text
 
 def format_slack_message(products, analysis):
     """Format the data into a Slack message with blocks"""
@@ -187,7 +197,7 @@ def format_slack_message(products, analysis):
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"*📈 AI Analysis & Insights*\n\n{analysis}"
+                "text": f"*📈 AI Analysis & Insights*\n\n{convert_markdown_to_slack(analysis)}"
             }
         }
     ]
